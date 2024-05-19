@@ -1,16 +1,19 @@
+'use client';
+
 import Link from "next/link";
-import { headers } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
+import { useRouter } from "next/navigation";
 
 export default function Login({
   searchParams,
 }: {
   searchParams: { message: string };
 }) {
+
+  const router = useRouter();
   const signIn = async (formData: FormData) => {
-    "use server";
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -21,34 +24,57 @@ export default function Login({
       password,
     });
 
+    const userId = (await supabase.auth.getUser()).data?.user?.id;
+    console.log(userId);
+
+    const { data: profile } = await supabase
+      .from("profile")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+
+    console.log(profile);
+
+    if (profile) {
+      if (profile.role === "guru") {
+        router.push('/guru');
+      } else if (profile.role === "siswa") {
+        router.push('/siswa');
+      }
+    }
+
     if (error) {
       return redirect(`/login?message=${error.message}`);
     }
-
-    return redirect("/protected");
   };
 
   const signUp = async (formData: FormData) => {
-    "use server";
-
-    const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const name = formData.get('nama') as string;
+  
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-      },
     });
 
     if (error) {
+      console.log(error);
       return redirect("/login?message=Could not authenticate user");
     }
 
-    return redirect("/login?message=Check email to continue sign in process");
+    const userId = data.user?.id;
+
+    const { data:profile, error: profileError } = await supabase.from('profile').insert(
+      { user_id: userId, role: 'siswa' }
+    )
+
+
+    router.refresh();
+    router.push
+    return {success: true}
   };
 
   return (
