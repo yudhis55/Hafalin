@@ -1,13 +1,59 @@
 'use client';
 
+// import { Metadata } from "next"
 import { AppShell, Burger, Group, Skeleton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Code } from '@mantine/core';
+import {
+    IconBellRinging,
+    IconFingerprint,
+    IconKey,
+    IconSettings,
+    Icon2fa,
+    IconDatabaseImport,
+    IconReceipt2,
+    IconSwitchHorizontal,
+    IconLogout,
+} from '@tabler/icons-react';
+import classes from './NavbarSimple.module.css';
+
+// export const metadata: Metadata = {
+//     title: "Dashboard",
+//     description: "Example dashboard app built using the components.",
+// }
+
+const data = [
+    { link: '/guru', label: 'Beranda', icon: IconBellRinging },
+    { link: '/guru/daftarsiswa', label: 'Daftar User', icon: IconReceipt2 },
+    { link: '/guru/daftarhafalan', label: 'Daftar Hafalan', icon: IconFingerprint },
+];
 
 export default function CollapseDesktop({ children }: { children: React.ReactNode }) {
     const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
     const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+    const [active, setActive] = useState('Billing');
+
+    const links = data.map((item) => (
+        <button
+            className={classes.link}
+            data-active={item.label === active || undefined}
+            onClick={(event) => {
+                event.preventDefault();
+                router.push(item.link);
+                setActive(item.label);
+            }}
+            // href={item.link}
+
+            key={item.label}
+        >
+            <item.icon className={classes.linkIcon} stroke={1.5} />
+            <span>{item.label}</span>
+        </button>
+    ));
+
 
     const router = useRouter();
     const handleLogout = async () => {
@@ -16,8 +62,8 @@ export default function CollapseDesktop({ children }: { children: React.ReactNod
         try {
             await supabase.auth.signOut();
             console.log("Logged out");
-            router.push("/login");
-            router.refresh();
+            (useRouter()).push("/login");
+            (useRouter()).refresh();
         } catch (error: any) {
             console.log(error.message);
             console.error(error);
@@ -25,33 +71,29 @@ export default function CollapseDesktop({ children }: { children: React.ReactNod
     }
 
     return (
-        <AppShell
-            header={{ height: 60 }}
-            navbar={{
-                width: 300,
-                breakpoint: 'sm',
-                collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
-            }}
-            padding="md"
-        >
-            <AppShell.Header>
-                <Group h="100%" px="md">
-                    <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
-                    <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
-                </Group>
-            </AppShell.Header>
-            <AppShell.Navbar p="md">
-                Navbar
-                {Array(15)
-                    .fill(0)
-                    .map((_, index) => (
-                        <Skeleton key={index} h={28} mt="sm" animate={false} />
-                    ))}
-                <button onClick={handleLogout}>Logout</button>
-            </AppShell.Navbar>
-            <AppShell.Main>
-                {children}
-            </AppShell.Main>
-        </AppShell>
+        <div className='flex'>
+            <nav className={classes.navbar}>
+                <div className={classes.navbarMain}>
+                    <Group className={classes.header} justify="space-between">
+                        <h1 className='text-2xl font-bold'>Hafalin</h1>
+                    </Group>
+                    <div className='flex flex-col'>
+                        {links}
+                    </div>
+                </div>
+                <div className={classes.footer}>
+                    <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+                        <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
+                        <span>Admin</span>
+                    </a>
+
+                    <a href="#" className={classes.link} onClick={handleLogout}>
+                        <IconLogout className={classes.linkIcon} stroke={1.5} />
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </nav>
+            <div className='w-full'>{children}</div>
+        </div>
     );
 }

@@ -6,11 +6,35 @@ export type Profile = {
   id: any;
   user_id: any;
   nama: string;
-  is_admin: boolean;
+  role: string;
   created_at: string;
 };
 
 const profileService = {
+  async getRoleSiswa() {
+    try {
+      const { data: profile, error } = await supabase
+        .from("profile")
+        .select("*")
+        // .eq("role", "siswa");
+      if (error) throw error;
+      console.log("profile", profile);
+      return profile as Profile[];
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
+      return [];
+    }
+  },
+
+  async getTotalSiswa() {
+    const { count, error } = await supabase
+      .from("profile")
+      .select("*", { count: "exact" })
+      .eq("role", "siswa");
+
+    if (error) throw error;
+    return count || 0;
+  },
   async getDaftarProfile() {
     try {
       const { data: profile, error } = await supabase
@@ -36,6 +60,7 @@ const profileService = {
 
   async addProfile(profileData: any) {
     const { data, error } = await supabase.from("profile").insert(profileData);
+    if (error) throw error;
     return data;
   },
 
