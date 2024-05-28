@@ -85,9 +85,10 @@ const Example = () => {
         [validationErrors],
     );
 
+    const newLocal = useCreateProfile();
     // CREATE hook
     const { mutateAsync: createProfile, isLoading: isCreatingProfile } =
-        useCreateProfile();
+        newLocal;
     // READ hook
     const {
         data: fetchedProfiles = [],
