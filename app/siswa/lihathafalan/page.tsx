@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const supabase = createClient();
 
 export default function LihatHafalanPage() {
-  const [hafalanList, setHafalanList] = useState([]);
+  const [hafalanList, setHafalanList] = useState<any[]>([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
