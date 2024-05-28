@@ -87,7 +87,7 @@ const Example = () => {
 
     const newLocal = useCreateProfile();
     // CREATE hook
-    const { mutateAsync: createProfile, isLoading: isCreatingProfile } =
+    const { mutateAsync: createProfile } =
         newLocal;
     // READ hook
     const {
@@ -97,10 +97,10 @@ const Example = () => {
         isLoading: isLoadingProfiles,
     } = useGetProfiles();
     // UPDATE hook
-    const { mutateAsync: updateProfile, isLoading: isUpdatingProfile } =
+    const { mutateAsync: updateProfile } =
         useUpdateProfile();
     // DELETE hook
-    const { mutateAsync: deleteProfile, isLoading: isDeletingProfile } =
+    const { mutateAsync: deleteProfile,} =
         useDeleteProfile();
 
     // CREATE action
@@ -209,7 +209,6 @@ const Example = () => {
         // ),
         state: {
             isLoading: isLoadingProfiles,
-            isSaving: isCreatingProfile || isUpdatingProfile || isDeletingProfile,
             showAlertBanner: isLoadingProfilesError,
             showProgressBars: isFetchingProfiles,
         },
