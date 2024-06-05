@@ -17,6 +17,9 @@ import {
     IconReceipt2,
     IconSwitchHorizontal,
     IconLogout,
+    IconHome,
+    IconUsers,
+    IconBook,
 } from '@tabler/icons-react';
 import classes from './NavbarSimple.module.css';
 
@@ -26,9 +29,9 @@ import classes from './NavbarSimple.module.css';
 // }
 
 const data = [
-    { link: '/guru', label: 'Beranda', icon: IconBellRinging },
-    { link: '/guru/daftarsiswa', label: 'Daftar User', icon: IconReceipt2 },
-    { link: '/guru/daftarhafalan', label: 'Daftar Hafalan', icon: IconFingerprint },
+    { link: '/guru', label: 'Beranda', icon: IconHome },
+    { link: '/guru/daftarsiswa', label: 'Daftar User', icon: IconUsers },
+    { link: '/guru/daftarhafalan', label: 'Daftar Hafalan', icon: IconBook },
 ];
 
 export default function CollapseDesktop({ children }: { children: React.ReactNode }) {
