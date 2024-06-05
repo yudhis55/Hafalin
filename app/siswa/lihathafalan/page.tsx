@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import hafalanService from '@/services/hafalan';
 
 const supabase = createClient();
 
@@ -30,24 +31,24 @@ export default function LihatHafalanPage() {
         return;
       }
 
-      const { data: hafalan, error: hafalanError } = await supabase
-        .from('hafalan')
-        .select('id, juz, surat, awal_ayat, akhir_ayat, link_hafalan, nilai, komentar')
-        .eq('profile_id', profile.id);
-
-      if (hafalanError) {
-        setError('Error fetching hafalan: ' + hafalanError.message);
-      } else {
-        setHafalanList(hafalan as any);
+      try {
+        const hafalan = await hafalanService.getDaftarHafalanByUser(profile.id);
+        setHafalanList(hafalan);
+      } catch (error: any) {
+        setError('Error fetching hafalan: ' + error.message);
       }
     }
     fetchHafalan();
   }, []);
 
   const handleUpdate = (id: string, updatedHafalan: any) => {
-    setHafalanList((prevList) => 
+    setHafalanList((prevList) =>
       prevList.map((hafalan) => (hafalan.id === id ? updatedHafalan : hafalan))
     );
+  };
+
+  const handleDelete = (id: string) => {
+    setHafalanList((prevList) => prevList.filter((hafalan) => hafalan.id !== id));
   };
 
   return (
@@ -56,7 +57,7 @@ export default function LihatHafalanPage() {
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {hafalanList.map((hafalan) => (
-          <HafalanCard key={hafalan.id} hafalan={hafalan} onUpdate={handleUpdate} />
+          <HafalanCard key={hafalan.id} hafalan={hafalan} onUpdate={handleUpdate} onDelete={handleDelete} />
         ))}
       </div>
     </div>
@@ -66,9 +67,10 @@ export default function LihatHafalanPage() {
 interface HafalanCardProps {
   hafalan: any;
   onUpdate: (id: string, updatedHafalan: any) => void;
+  onDelete: (id: string) => void;
 }
 
-function HafalanCard({ hafalan, onUpdate }: HafalanCardProps) {
+function HafalanCard({ hafalan, onUpdate, onDelete }: HafalanCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [juz, setJuz] = useState(hafalan.juz);
   const [surat, setSurat] = useState(hafalan.surat);
@@ -103,8 +105,17 @@ function HafalanCard({ hafalan, onUpdate }: HafalanCardProps) {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await hafalanService.deleteHafalan(hafalan.id);
+      onDelete(hafalan.id);
+    } catch (error: any) {
+      setError('Error deleting hafalan: ' + error.message);
+    }
+  };
+
   const extractYouTubeID = (url: any) => {
-    const regExp = /^.*(youtu.be\/|v\/|\/u\/\w\/|embed\/|watch\?v=|&v=|youtu.be\/|\/v\/|shorts\/|\/embed\/|watch\?v=|&v=|watch\?v=|watch\?v=|watch\?v=|watch\?v=|\/embed\/|watch\?v=|watch\?v=|&v=|watch\?v=|v\/|embed\/|shorts\/)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|\/u\/\w\/|embed\/|watch\?v=|&v=|youtu.be\/|\/v\/|shorts\/|\/embed\/|watch\?v=|&v=|watch\?v=|&v=|watch\?v=|watch\?v=|watch\?v=|watch\?v=|\/embed\/|watch\?v=|watch\?v=|&v=|watch\?v=|v\/|embed\/|shorts\/)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
@@ -187,7 +198,7 @@ function HafalanCard({ hafalan, onUpdate }: HafalanCardProps) {
                 required
               />
             </div>
-            {/* <div>
+            <div>
               <label htmlFor="nilai" className="block text-sm font-medium text-gray-700">
                 Nilai
               </label>
@@ -211,7 +222,7 @@ function HafalanCard({ hafalan, onUpdate }: HafalanCardProps) {
                 className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                 required
               />
-            </div> */}
+            </div>
             <div className="flex justify-end space-x-2">
               <button
                 type="button"
@@ -249,13 +260,20 @@ function HafalanCard({ hafalan, onUpdate }: HafalanCardProps) {
             <p>Akhir Ayat: {hafalan.akhir_ayat}</p>
             <p>Nilai: {hafalan.nilai}</p>
             <p>Komentar: {hafalan.komentar}</p>
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-2">
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md"
               >
                 Edit
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md"
+              >
+                Delete
               </button>
             </div>
           </div>

@@ -67,6 +67,7 @@ export default function CollapseDesktop({ children }: { children: React.ReactNod
             console.log("Logged out");
             (useRouter()).push("/login");
             (useRouter()).refresh();
+            window.location.reload();
         } catch (error: any) {
             console.log(error.message);
             console.error(error);
