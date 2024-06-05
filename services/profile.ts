@@ -1,4 +1,4 @@
-import {createClient} from "../utils/supabase/client";
+import { createClient } from "../utils/supabase/client";
 
 const supabase = createClient();
 
@@ -15,8 +15,8 @@ const profileService = {
     try {
       const { data: profile, error } = await supabase
         .from("profile")
-        .select("*")
-        // .eq("role", "siswa");
+        .select("*");
+      // .eq("role", "siswa");
       if (error) throw error;
       console.log("profile", profile);
       return profile as Profile[];
@@ -35,6 +35,24 @@ const profileService = {
     if (error) throw error;
     return count || 0;
   },
+
+  // Metode untuk mendapatkan profile pengguna yang sedang login
+  async getLoggedInUserProfile() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not logged in");
+
+    const { data: profile, error } = await supabase
+      .from("profile")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    if (error) throw error;
+    return profile as Profile;
+  },
+
   async getDaftarProfile() {
     try {
       const { data: profile, error } = await supabase

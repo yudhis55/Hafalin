@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.pathname !== "/login" &&
       request.nextUrl.pathname !== "/register"
     ) {
-      return NextResponse.rewrite(loginUrl);
+      return NextResponse.rewrite(homeUrl);
     }
   } else {
     // Get the user profile from the Supabase database

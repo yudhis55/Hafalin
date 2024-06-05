@@ -85,6 +85,30 @@ const hafalanService = {
     }
   },
 
+  // Metode untuk mendapatkan daftar hafalan berdasarkan ID pengguna
+  async getDaftarHafalanByUser(profileId: string) {
+    try {
+      const { data: hafalan, error } = await supabase
+        .from("hafalan")
+        .select(
+          `id, profile_id, juz, surat, awal_ayat, akhir_ayat, nilai, komentar, created_at, link_hafalan, profile(nama)`
+        )
+        .eq("profile_id", profileId);
+
+      if (error) throw error;
+
+      const mappedHafalan = hafalan.map((item: any) => ({
+        ...item,
+        nama_siswa: item.profile ? item.profile.nama : "Unknown",
+      }));
+
+      return mappedHafalan as Hafalan[];
+    } catch (error) {
+      console.error("Error fetching hafalan:", error);
+      return [];
+    }
+  },
+
   async getHafalan(hafalanId: string) {
     const { data: hafalan, error } = await supabase
       .from("hafalan")

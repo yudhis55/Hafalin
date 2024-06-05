@@ -82,10 +82,10 @@ export default function CollapseDesktop({ children }: { children: React.ReactNod
                     </div>
                 </div>
                 <div className={classes.footer}>
-                    <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+                    {/* <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
                         <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
                         <span>Admin</span>
-                    </a>
+                    </a> */}
 
                     <a href="#" className={classes.link} onClick={handleLogout}>
                         <IconLogout className={classes.linkIcon} stroke={1.5} />
